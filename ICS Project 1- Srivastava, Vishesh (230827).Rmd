@@ -1,0 +1,680 @@
+---
+title: "Project I (Descriptive analysis  demographic data)"
+author: 
+- Vishesh Srivastava, 
+- Vikas Singh
+- Arindam Pal
+- JaiminPrashantkumar Oza
+date: "04/17/2023"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, warning=FALSE, message=FALSE}
+
+#Loading all the required libraries
+
+# Used for Data Manipulation
+library(dplyr)
+
+#Provides a collection of functions for arranging multiple grid-based plots on a page
+library(gridExtra)
+
+#For Streamlined Plot Theme and Plot Annotations
+library(cowplot)
+
+#Used for correlation between all the variables
+library(corrplot)
+
+#Used for plotting graphs
+library(ggpubr)
+
+library(RColorBrewer)
+
+```
+
+```{r , warning=FALSE, message=FALSE}
+
+# Read csv file
+
+original_df <- read.csv(file.choose(), 
+                        header = TRUE, 
+                        stringsAsFactors = TRUE)
+
+# Replacing the NA values with mean value or the Maximum occurred value(in case  
+# categorical data)  the respective columns 
+
+
+# **********We were asked to replace the categorical value manually************
+
+#original_df$Subregion <- replace(original_df$Subregion, is.na(original_df$Subregion),
+#                                  names(which.max(table(original_df$Subregion))))
+
+#original_df$Region <- replace(original_df$Region, is.na(original_df$Region),
+#                                  names(which.max(table(original_df$Region))))
+
+original_df$Life.Expectancy.at.Birth..Both.Sexes[
+  is.na(original_df$Life.Expectancy.at.Birth..Both.Sexes)] <-
+  mean(original_df$Life.Expectancy.at.Birth..Both.Sexes, na.rm = TRUE)
+
+original_df$Life.Expectancy.at.Birth..Males[
+  is.na(original_df$Life.Expectancy.at.Birth..Males)] <-
+  mean(original_df$Life.Expectancy.at.Birth..Males, na.rm = TRUE)
+
+original_df$Life.Expectancy.at.Birth..Females[
+  is.na(original_df$Life.Expectancy.at.Birth..Females)] <-
+  mean(original_df$Life.Expectancy.at.Birth..Females, na.rm = TRUE)
+
+original_df$Under.Age.5.Mortality..Both.Sexes[
+  is.na(original_df$Under.Age.5.Mortality..Both.Sexes)] <-
+  mean(original_df$Under.Age.5.Mortality..Both.Sexes, na.rm = TRUE)
+
+original_df$Under.Age.5.Mortality..Males[
+  is.na(original_df$Under.Age.5.Mortality..Males)] <-
+  mean(original_df$Under.Age.5.Mortality..Males, na.rm = TRUE)
+
+original_df$Under.Age.5.Mortality..Females[
+  is.na(original_df$Under.Age.5.Mortality..Females)] <-
+  mean(original_df$Under.Age.5.Mortality..Females, na.rm = TRUE)
+
+# Subset the dataframe containing records only from 2022 for part 1), 2) and 3)
+df <- original_df[which(original_df$Year ==2022), ]
+
+```
+
+## Part 1
+
+```{r, warning=FALSE, message=FALSE}
+
+#Boxplot for life expectancy at birth  both sexes by region
+p1 <- ggplot(data = df, 
+       mapping = aes(Region, Life.Expectancy.at.Birth..Both.Sexes, fill=Region)) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  geom_boxplot() +  
+  labs(#title="Life Expectancy At Birth Both Sexes By Region", 
+    x=element_blank(),  
+    y = "Life Expectancy At Birth Both Sexes (Years)") +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 1)) +
+  theme(legend.position='none') +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_blank(),axis.ticks.x = element_blank()) +
+  ylim(min(df$Life.Expectancy.at.Birth..Males,
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes),
+       max(df$Life.Expectancy.at.Birth..Males, 
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes))
+
+#Boxplot for Life expectancy at birth  males by region
+p2 <- ggplot(data = df, mapping = aes(Region, Life.Expectancy.at.Birth..Males,
+                                      fill=Region)) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  geom_boxplot() +  
+  labs(#title="Life Expectancy At Birth Males By Region", 
+    x=element_blank(), 
+    y = "Life Expectancy At Birth Males (Years)") +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 1)) +
+  theme(legend.position='none') + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_blank(),axis.ticks.x = element_blank()) +
+  ylim(min(df$Life.Expectancy.at.Birth..Males,
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes),
+       max(df$Life.Expectancy.at.Birth..Males, 
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes))
+
+
+#Boxplot for Life expectancy at birth  females by region
+p3 <- ggplot(data = df, mapping = aes(Region, Life.Expectancy.at.Birth..Females,
+                                      fill=Region)) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  geom_boxplot() +  
+  labs(#title="Life Expectancy At Birth Females By Region", 
+    x=element_blank(),  
+    y = "Life Expectancy At Birth Females (Years)") +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 1)) +
+  theme(legend.position='none') + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_blank(),axis.ticks.x = element_blank()) +
+  ylim(min(df$Life.Expectancy.at.Birth..Males,
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes),
+       max(df$Life.Expectancy.at.Birth..Males, 
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes))
+
+
+#Boxplot for under age 5 mortality  both sexes under age 5 by regions
+p4 <- ggplot(data = df, mapping = aes(Region, Under.Age.5.Mortality..Both.Sexes,
+                                      fill=Region)) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  geom_boxplot() +  
+  labs(#title="Under Age 5 Mortality Both Sexes BY Regions", 
+    x=element_blank(),  
+    y = "Under Age 5 Mortality Both Sexes (Per 1000  Births)",
+    size = 1) +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 1)) +
+  theme(legend.position='none') +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_blank(),axis.ticks.x = element_blank()) +
+  ylim(0, max(df$Under.Age.5.Mortality..Females, 
+              df$Under.Age.5.Mortality..Males,
+              df$Under.Age.5.Mortality..Both.Sexes))
+  
+#Boxplot for Under Age 5 Mortality  Males under age 5 by regions
+p5 <- ggplot(data = df, 
+       mapping = aes(Region, Under.Age.5.Mortality..Males, fill=Region)) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  geom_boxplot() +  
+  labs(#title="Under Age 5 Mortality Males By Regions", 
+    x=element_blank(),  
+    y = "Under Age 5 Mortality Males (Per 1000  Births)",
+    size = 1) +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 1)) +
+  theme(legend.position='none') +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_blank(),axis.ticks.x = element_blank()) +
+  ylim(0, max(df$Under.Age.5.Mortality..Females, 
+              df$Under.Age.5.Mortality..Males,
+              df$Under.Age.5.Mortality..Both.Sexes))
+
+
+#Boxplot for Under Age 5 Mortality  Females under age 5 by regions
+p6 <- ggplot(data = df, 
+       mapping = aes(Region, Under.Age.5.Mortality..Females, fill=Region)) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  geom_boxplot() +  
+  labs(#title="Under Age 5 Mortality Females By Regions", 
+    x=element_blank(), 
+    y=element_text("Under Age 5 Mortality Females (Per 1000 Births)", size=10))+
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 1)) +
+  theme(legend.position='none') +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_blank(),axis.ticks.x = element_blank()) +
+  ylim(0, max(df$Under.Age.5.Mortality..Females, 
+              df$Under.Age.5.Mortality..Males,
+              df$Under.Age.5.Mortality..Both.Sexes))
+
+plot_grid(p1 + theme(legend.position = "none"),
+          p2 + theme(legend.position = "none"),
+          p3 + theme(legend.position = "right"),
+          ncol = 3, align = "v", axis = "tb", rel_widths=c(1, 1, 1.55)) +
+  
+  # Add the legend to the right of the grid
+  theme(legend.position = "right")
+
+plot_grid(p4 + theme(legend.position = "none"),
+          p5 + theme(legend.position = "none"),
+          p6 + theme(legend.position = "right"),
+          ncol = 3, align = "v", axis = "tb", rel_widths=c(1, 1, 1.55)) +
+  
+  # Add the legend to the right of the grid
+  theme(legend.position = "right")
+
+```
+
+```{r, warning=FALSE, message=FALSE}
+
+par(mfrow = c(2, 3))
+
+# Histogram for Life Expectancy At Birth Both Sexes
+hist(df$Life.Expectancy.at.Birth..Both.Sexes, freq = TRUE, ylim = c(0, 40),
+     xlab = "a) Life Expectancy At Birth \nBoth Sexes (Years)", main =" "
+     , breaks = 20, cex.lab = 1.1)
+legend("topleft", c("Mean","Median"), col = c("red", "blue"), lwd = 2)
+abline(v = mean(df$Life.Expectancy.at.Birth..Both.Sexes), col = "red", lwd = 2)
+abline(v = median(df$Life.Expectancy.at.Birth..Both.Sexes), col = "blue", lwd = 2)
+
+# Histogram for Life Expectancy At Birth Males
+hist(df$Life.Expectancy.at.Birth..Males, freq = TRUE, ylim = c(0, 40),
+     xlab = "b) Life Expectancy At Birth \nMales (Years)", main =" "
+     , breaks = 20, cex.lab = 1.1)
+legend("topleft", c("Mean","Median"), col = c("red", "blue"), lwd = 2)
+abline(v = mean(df$Life.Expectancy.at.Birth..Males), col = "red", lwd = 2)
+abline(v = median(df$Life.Expectancy.at.Birth..Males), col = "blue", lwd = 2)
+
+# Histogram for Life Expectancy At Birth Females
+hist(df$Life.Expectancy.at.Birth..Females, freq = TRUE, ylim = c(0, 40),
+     xlab = "c) Life Expectancy At Birth \n Females (Years)", main =" "
+     , breaks = 20, cex.lab = 1.1)
+legend("topleft", c("Mean","Median"), col = c("red", "blue"), lwd = 2)
+abline(v = mean(df$Life.Expectancy.at.Birth..Females), col = "red", lwd = 2)
+abline(v = median(df$Life.Expectancy.at.Birth..Females), col = "blue", lwd = 2)
+
+# Histogram for Under Age 5 Mortality Both Sexes
+hist(df$Under.Age.5.Mortality..Both.Sexes, freq = TRUE, ylim = c(0, 100),
+     xlab = "d) Under Age 5 Mortality \nBoth Sexes (Per 1000 Births)", main =" "
+     , breaks = 20, cex.lab = 1.1)
+legend("topright", c("Mean","Median"), col = c("red", "blue"), lwd = 2)
+abline(v = mean(df$Under.Age.5.Mortality..Both.Sexes), col = "red", lwd = 2)
+abline(v = median(df$Under.Age.5.Mortality..Both.Sexes), col = "blue", lwd = 2)
+
+# Histogram for Under Age 5 Mortality Males
+hist(df$Under.Age.5.Mortality..Males, freq = TRUE, ylim = c(0, 100),
+     xlab = "e) Under Age 5 Mortality \nMales (Per 1000 Births)", main =" "
+     , breaks = 20, cex.lab = 1.1)
+legend("topright", c("Mean","Median"), col = c("red", "blue"), lwd = 2)
+abline(v = mean(df$Under.Age.5.Mortality..Males), col = "red", lwd = 2)
+abline(v = median(df$Under.Age.5.Mortality..Males), col = "blue", lwd = 2)
+
+# Histogram for Under Age 5 Mortality Females
+hist(df$Under.Age.5.Mortality..Females, freq = TRUE, ylim = c(0, 100),
+     xlab = "f) Under Age 5 Mortality \nFemales (Per 1000 Births)", main =" "
+     , breaks = 20, cex.lab = 1.1)
+legend("topright", c("Mean","Median"), col = c("red", "blue"), lwd = 2)
+abline(v = mean(df$Under.Age.5.Mortality..Females), col = "red", lwd = 2)
+abline(v = median(df$Under.Age.5.Mortality..Females), col = "blue", lwd = 2)
+
+
+```
+
+
+```{r, warning=FALSE, message=FALSE}
+
+#ggplot for the differences between the sexes and regions
+differenceSexes1 <- ggplot(df, aes(x = Life.Expectancy.at.Birth..Females, y = Life.Expectancy.at.Birth..Males, 
+               color = Region)) +
+  geom_point(size = 3, shape = 20) +
+  theme(panel.background = element_blank(), 
+        axis.line = element_line(colour = "black"), 
+        panel.border = element_rect(color = "black", fill = NA, size = 1), 
+        legend.position = "none") +
+  labs(x = "Life Expectancy At Birth \nFemales (Years)", 
+       y = "Life Expectancy At Birth \nMales (Years)", 
+       color = "Region") +
+  theme(plot.title = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12))+
+  geom_abline(intercept = 0, slope = 1) + 
+  xlim(50, 93) + 
+  ylim(50, 93) +
+  scale_color_manual(values = brewer.pal(n = length(unique(df$Region)), 
+                                         name = "Set1")) +
+  theme(text = element_text(size = 14))  
+  #+ geom_text(aes(label = ifelse(Life.Expectancy.at.Birth..Males > Life.Expectancy.at.Birth..Females, 
+  #                             as.character(Country.Area.Name), "")), size = 4)
+
+differenceSexes2 <- ggplot(df, aes(x = Under.Age.5.Mortality..Females, 
+                                   y = Under.Age.5.Mortality..Males, 
+               color = Region)) +
+  geom_point(size = 3, shape = 20) +
+  theme(panel.background = element_blank(), 
+        axis.line = element_line(colour = "black"), 
+        panel.border = element_rect(color = "black", fill = NA, size = 1), 
+        legend.position = "right") +
+  labs(x = "Under Age 5 Mortality \nFemales (Per 1000 Births)", 
+       y = "Under Age 5 Mortality \nMales (Per 1000 Births)", 
+       color = "Region") +
+  theme(plot.title = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12))+
+  geom_abline(intercept = 0, slope = 1) + 
+  scale_color_manual(values = brewer.pal(n = length(unique(df$Region)), 
+                                         name = "Set1")) +
+  theme(text = element_text(size = 14)) 
+  #+ geom_text(aes(label = ifelse(Under.Age.5.Mortality..Males < Under.Age.5.Mortality..Females, 
+  #                             as.character(Country.Area.Name), "")), size = 6)
+
+plot_grid(differenceSexes1 + theme(legend.position = "none"),
+          differenceSexes2 + theme(legend.position = "right"),
+          ncol = 2, align = "v", axis = "tb", rel_widths=c(1, 1.5)) +
+  
+  # Add the legend to the right of the grid
+  theme(legend.position = "right")
+
+```
+
+## Part 2
+
+```{r, warning=FALSE, message=FALSE}
+
+new <- df[ , c("Region", "Subregion")]
+a <- unique(new)
+a <- a[order(a$Region),c(1,2)]
+b <- unique(a$Subregion)
+df$subregion <- factor(df$Subregion , levels=b)
+#The plot is now ordered !
+
+
+#Life expectancy  both sexes by subregion 
+variabilityPlot1 <- ggplot() + 
+  geom_boxplot(data = subset(df, Region == "Africa"), 
+               mapping = aes(Subregion, 
+                                        Life.Expectancy.at.Birth..Both.Sexes, 
+                                        fill=Subregion)) +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  labs(#title="Life Expectancy In Years By Subregion", 
+    x=NULL, 
+    y = "Life Expectancy At Birth \nBoth Sexes (Years)") +
+  theme(legend.position='none') +
+  facet_grid(. ~ Region, scales = "free", space = "free") + 
+  theme(panel.border = 
+          element_rect(color = "black", fill = NA, size = 0.50)) +
+  theme(axis.text.y = element_text(size=12,color = "black")) +
+  ylim(min(df$Life.Expectancy.at.Birth..Males,
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes),
+       max(df$Life.Expectancy.at.Birth..Males, 
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes)) +
+  xlab(NULL) +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+#Life expectancy  males by subregion
+variabilityPlot2 <- ggplot() + 
+  geom_boxplot(data = subset(df, Region == "Africa"), 
+               mapping = aes(Subregion, 
+                             Life.Expectancy.at.Birth..Males, 
+                             fill=Subregion)) +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  labs(#title="Life Expectancy At Birth Males By Subregion", 
+    x=NULL, 
+    y = "Life Expectancy At Birth \nMales (Years)") +
+  theme(legend.position='none') +
+  facet_grid(. ~ Region, scales = "free", space = "free") + 
+  theme(panel.border = 
+          element_rect(color = "black", fill = NA, size = 0.50)) +
+  theme(axis.text.y = element_text(size=12,color = "black"))  +
+  ylim(min(df$Life.Expectancy.at.Birth..Males,
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes),
+       max(df$Life.Expectancy.at.Birth..Males, 
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes)) +
+  xlab(NULL) +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+#Life expectancy at birth females by subregion
+variabilityPlot3 <- ggplot() + 
+  geom_boxplot(data = subset(df, Region == "Africa"), 
+               mapping = aes(Subregion, 
+                                        Life.Expectancy.at.Birth..Females, 
+                                        fill=Subregion)) +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  labs(#title="Life Expectancy At Birth Females By Subregion", 
+    x=NULL, 
+    y = "Life Expectancy At Birth \nFemales (Years)") +
+  theme(legend.position='none') +
+  facet_grid(. ~ Region, scales = "free", space = "free") + 
+  theme(panel.border = 
+          element_rect(color = "black", fill = NA, size = 0.50)) +
+  theme(axis.text.y = element_text(size=12,color = "black"))  +
+  ylim(min(df$Life.Expectancy.at.Birth..Males,
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes),
+       max(df$Life.Expectancy.at.Birth..Males, 
+           df$Life.Expectancy.at.Birth..Females,
+           df$Life.Expectancy.at.Birth..Both.Sexes)) +
+  xlab(NULL) +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+#Under age 5 Mortality  both sexes 
+variabilityPlot4 <- ggplot() + 
+  geom_boxplot(data = subset(df, Region == "Africa"), 
+               mapping = aes(Subregion, 
+                             Under.Age.5.Mortality..Both.Sexes, 
+                             fill=Subregion)) +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  labs(#title="Under Age 5 Mortality By Subregion", 
+    x=NULL, 
+    y = "Under Age 5 Mortality \nBoth Sexes (Per 1000 Birth)") +
+  theme(legend.position='none') +
+  facet_grid(. ~ Region, scales = "free", space = "free") + 
+  theme(panel.border = 
+          element_rect(color = "black", fill = NA, size = 0.50)) +
+  theme(axis.text.y = element_text(size=12,color = "black")) +
+  ylim(0, max(df$Under.Age.5.Mortality..Females, 
+              df$Under.Age.5.Mortality..Males,
+              df$Under.Age.5.Mortality..Both.Sexes)) +
+  xlab(NULL) +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+#Under age 5 Mortality  Males 
+variabilityPlot5 <- ggplot() + 
+  geom_boxplot(data = subset(df, Region == "Africa"), 
+               mapping = aes(Subregion, 
+                             Under.Age.5.Mortality..Males, 
+                             fill=Subregion)) +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  labs(#title="Under Age 5 Mortality Males By Subregion", 
+    x = NULL, 
+    y = "Under Age 5 Mortality \nMales (Per 1000 Birth)") +
+  theme(legend.position='none') +
+  facet_grid(. ~ Region, scales = "free", space = "free") + 
+  theme(panel.border = 
+          element_rect(color = "black", fill = NA, size = 0.50)) +
+  theme(axis.text.y = element_text(size=12,color = "black"))  +
+  ylim(0, max(df$Under.Age.5.Mortality..Females, 
+              df$Under.Age.5.Mortality..Males,
+              df$Under.Age.5.Mortality..Both.Sexes)) +
+  xlab(NULL) +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+#Under age 5 Mortality  Females 
+variabilityPlot6 <- ggplot() + 
+  geom_boxplot(data = subset(df, Region == "Africa"), 
+               mapping = aes(Subregion, 
+                             Under.Age.5.Mortality..Females, 
+                             fill=Subregion)) +
+  theme(panel.background = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
+  labs(#title="Under Age 5 Mortality Females By Subregion", 
+    x=NULL, 
+    y = "Under Age 5 Mortality \nFemales (Per 1000 Birth)") +
+  theme(legend.position='none') +
+  facet_grid(. ~ Region, scales = "free", space = "free") + 
+  theme(panel.border = 
+          element_rect(color = "black", fill = NA, size = 0.50)) +
+ # theme(axis.text.x = element_blank(),axis.ticks.x = element_blank()) +
+  theme(axis.text.y = element_text(size=12,color = "black"))  +
+  scale_x_discrete(breaks=NULL) +
+  ylim(0, max(df$Under.Age.5.Mortality..Females, 
+              df$Under.Age.5.Mortality..Males,
+              df$Under.Age.5.Mortality..Both.Sexes)) +
+  xlab(NULL) +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+df %>%
+  group_by(Region) %>%
+  summarize(Q1 = round(quantile(`Life.Expectancy.at.Birth..Both.Sexes`, 0.25), 2),
+            Median = round(median(`Life.Expectancy.at.Birth..Both.Sexes`), 2),
+            Q3 = round(quantile(`Life.Expectancy.at.Birth..Both.Sexes`, 0.75), 2),
+            IQR = round(IQR(`Life.Expectancy.at.Birth..Both.Sexes`), 2))
+
+
+df %>%
+  group_by(Region) %>%
+  summarize(Q1 = round(quantile(`Under.Age.5.Mortality..Both.Sexes`, 0.25), 2),
+            Median = round(median(`Under.Age.5.Mortality..Both.Sexes`), 2),
+            Q3 = round(quantile(`Under.Age.5.Mortality..Both.Sexes`, 0.75), 2),
+            IQR = round(IQR(`Under.Age.5.Mortality..Both.Sexes`), 2))
+
+plot_grid(variabilityPlot1 + theme(legend.position = "none"),
+          variabilityPlot2 + theme(legend.position = "none"),
+          variabilityPlot3 + theme(legend.position = "right"),
+          ncol = 3, align = "v", axis = "tb", rel_widths=c(1, 1, 1.72)) +
+  
+  # Add the legend to the right of the grid
+  theme(legend.position = "right")
+
+plot_grid(variabilityPlot4 + theme(legend.position = "none"),
+          variabilityPlot5 + theme(legend.position = "none"),
+          variabilityPlot6 + theme(legend.position = "right"),
+          ncol = 3, align = "v", axis = "tb", rel_widths=c(1, 1, 1.72), rel_heights = .1) +
+  
+  # Add the legend to the right of the grid
+  theme(legend.position = "right")
+
+```
+
+## Part 3
+
+```{r, warning=FALSE}
+
+corr_columns <- cor(df[, c('Life.Expectancy.at.Birth..Both.Sexes',
+                           'Life.Expectancy.at.Birth..Males',
+                           'Life.Expectancy.at.Birth..Females',
+                           'Under.Age.5.Mortality..Both.Sexes',
+                           'Under.Age.5.Mortality..Males',
+                           'Under.Age.5.Mortality..Females')])
+
+# colnames(corr_columns) <- rownames(corr_columns)  <- 
+#   c('Life Expectancy At Birth  Both Sexes',
+#                            'Life Expectancy At Birth  Males',
+#                            'Life Expectancy At Birth  Females',
+#                            'Under Age 5 Mortality  Both Sexes',
+#                            'Under Age 5 Mortality  Males',
+#                            'Under Age 5 Mortality  Females')
+# 
+# corrplot(corr_columns, method = 'number', col = 'black', cl.pos = 'n',
+#           width = 10, height = 8, tl.cex = 0.7)
+
+# Function to add correlation coefficients
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor = 0.1, ...) {
+  usr <- par("usr")
+  on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  Cor <- cor(x, y)
+  txt <- paste0(prefix, format(c(Cor, 0.123456789), digits = digits)[1])
+  text(0.5, 0.5, txt,
+       cex = 1 + cex.cor * abs(Cor)) # Resize the text by level  correlation
+}
+
+
+# Plotting the correlation matrix
+pairs(df[,6:11], c("Life expectancy\n at birth both\n sexes (Years)",
+                  "Life expectancy\n at birth males\n (Years)",
+                  "Life expectancy\n at birth females\n (Years)",
+                  "Under Age 5 \nmortality both sexes\n  (Per 1000 Births)",
+                  "Under Age 5 \nmortality males\n (Per 1000 Births)",
+                  "Under Age 5 \nmortality females\n (Per 1000 Births)"),
+      upper.panel = panel.cor,    # correlation panel
+      cex.labels = 1) # Smoothed regression lines
+
+```
+
+## Part 4
+
+```{r, warning=FALSE, message=FALSE}
+
+# Re-loading the original dataset to compare the change  
+# variables from year 2002 to 2022
+df <- original_df
+
+census_2022 <- df[which(df$Year ==2022), ]
+census_2002 <- df[which(df$Year ==2002), ]
+
+#Life expectancy at birth for both sexes
+changeOfValiablePlot1 <- ggplot(census_2022, aes(x=Life.Expectancy.at.Birth..Both.Sexes, 
+                             y=census_2002$Life.Expectancy.at.Birth..Both.Sexes,
+                             colour=Region)) + 
+  geom_point(size=2) + xlab("Year 2022") + 
+  ylab("Life Expectancy At Birth \n Both Sexes (Year 2002)") + 
+  geom_abline(intercept = 0, slope = 1) +
+  xlim(55, 92) + ylim(55, 92) 
+
+
+#Life expectancy at birth  males
+changeOfValiablePlot2 <- ggplot(census_2022, aes(x=Life.Expectancy.at.Birth..Males, 
+                             y=census_2002$Life.Expectancy.at.Birth..Males,
+                             colour=Region)) + 
+  geom_point(size=2) + xlab("Year 2022") + 
+  ylab("Life Expectancy At Birth\n Males (Year 2002)") + 
+  geom_abline(intercept = 0, slope = 1) +
+  xlim(50, 95) + ylim(50, 95)
+
+
+#Life expectancy at birth  females
+changeOfValiablePlot3 <- ggplot(census_2022, aes(x=Life.Expectancy.at.Birth..Females,
+                             y=census_2002$Life.Expectancy.at.Birth..Females,
+                             colour=Region)) + 
+  geom_point(size=2) + xlab("Year 2022") + 
+  ylab("Life Expectancy At Birth\n Females (Year 2002)") + 
+  geom_abline(intercept = 0, slope = 1) +
+  xlim(50, 95) + ylim(50, 95)
+
+
+#Under age 5 Mortality  Both Sexes
+changeOfValiablePlot4 <- ggplot(census_2022, aes(x=Under.Age.5.Mortality..Both.Sexes,
+                             y=census_2002$Under.Age.5.Mortality..Both.Sexes,
+                             colour=Region)) +
+  geom_point(size=2) + annotate(geom="text", y=6.7, x=7.8, label="",color="black",
+                                na.rm = TRUE,size = 5) + 
+  annotate(geom="text", y=1.6, x=1.2, label="",color="black",na.rm = TRUE,size = 5) +
+  xlab("Year 2022") + 
+  ylab("Under Age 5 Mortality Both Sexes \n(Per 1000 Births - Year 2002)") + 
+  geom_abline(intercept = 0, slope = 1) +
+  xlim(0, 150) + ylim(0, 150) 
+
+
+#Under age 5 Mortality  Males 
+changeOfValiablePlot5 <- ggplot(census_2022, aes(x=Under.Age.5.Mortality..Males,
+                             y=census_2002$Under.Age.5.Mortality..Males,
+                             colour=Region)) +
+  geom_point(size=2) + annotate(geom="text", y=6.7, x=7.8, label="",color="black",
+                                na.rm = TRUE,size = 5) + 
+  annotate(geom="text", y=1.6, x=1.2, label="",color="black",na.rm = TRUE,size = 5) +
+  xlab("Year 2022") + 
+  ylab("Under Age 5 Mortality Males \n(Per 1000 Births - Year 2002)") + 
+  geom_abline(intercept = 0, slope = 1) +
+  xlim(0, 150) + ylim(0, 150) 
+
+
+#Under age 5 Mortality for Females 
+changeOfValiablePlot6 <- ggplot(census_2022, aes(x=Under.Age.5.Mortality..Females,
+                             y=census_2002$Under.Age.5.Mortality..Females,
+                             colour=Region)) +
+  geom_point(size=2) + annotate(geom="text", y=6.7, x=7.1, label="",color="black",na.rm = TRUE,size = 4) + 
+  annotate(geom="text", y=1.6, x=1.2, label="",color="black",na.rm = TRUE,size = 5) +
+  xlab("Year 2022") + 
+  ylab("Under Age 5 Mortality Females \n(Per 1000 Births - Year 2002)") + 
+  geom_abline(intercept = 0, slope = 1) +
+  xlim(0, 150) + ylim(0, 150) 
+
+plot_grid(changeOfValiablePlot1 + theme(legend.position = "none"),
+          changeOfValiablePlot2 + theme(legend.position = "none"),
+          changeOfValiablePlot3 + theme(legend.position = "right"),
+          ncol = 3, align = "v", axis = "tb", rel_widths=c(1, 1, 1.5)) +
+  
+  # Add the legend to the right of the grid
+  theme(legend.position = "right")
+
+plot_grid(changeOfValiablePlot4 + theme(legend.position = "none"),
+          changeOfValiablePlot5 + theme(legend.position = "none"),
+          changeOfValiablePlot6 + theme(legend.position = "right"),
+          ncol = 3, align = "v", axis = "tb", rel_widths=c(1, 1, 1.5), rel_heights = .1) +
+  
+  # Add the legend to the right of the grid
+  theme(legend.position = "right")
+```
