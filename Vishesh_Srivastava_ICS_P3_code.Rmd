@@ -1,0 +1,144 @@
+---
+title: "Project III Regression Analysis"
+author: "Vishesh Srivastava"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Load the relevant libraries
+```{r, warning=FALSE, message=FALSE}
+library(corrplot)
+library(car)
+library(leaps)
+```
+
+## Task 1
+
+```{r, warning=FALSE, message=FALSE}
+
+# Read the dataset
+bikedata <- read.csv(file.choose())
+
+# Check for missing values in 'bikedata'
+missing_values <- colSums(is.na(bikedata))
+
+# Print the columns with missing values
+cols_with_missing <- names(missing_values[missing_values > 0])
+if (length(cols_with_missing) > 0) {
+  print("Columns with missing values: ", paste(cols_with_missing, collapse = ", "))
+} else {
+  print("No missing values found in any column.")
+}
+
+# Compute the correlation matrix
+
+columnNames <- c("hour","humidity","rainfall","temperature", 
+              "wind speed", "visibility","solar radiation",  
+              "snowfall", "log rented bike count")
+
+cor_matrix <- cor(bikedata[, c("Hour","Humidity","Rainfall","Temperature", 
+              "Wind.speed", "Visibility","Solar.Radiation",  
+              "Snowfall", "log.Rented.Bike.Count")])
+
+rownames(cor_matrix) <- columnNames
+
+colnames(cor_matrix) <- columnNames
+
+corrplot(cor_matrix, method = "number", type = "lower",
+         tl.cex = 0.8, tl.col = 'black', mar = c(0, 0, 0, 0),
+         diag = FALSE, col = "black", number.cex = 0.8, 
+         cl.pos = "n", cex.col = 2.5)
+
+# Calculate the mean for each column
+mean_values <- sapply(bikedata, mean, na.rm = TRUE)
+
+# Calculate the variance for each column
+variance_values <- sapply(bikedata, var, na.rm = TRUE)
+
+# Display the mean and variance values
+round(mean_values,3)
+round(variance_values,3)
+
+
+```
+
+## Task 2
+```{r, warning=FALSE, message=FALSE}
+
+# Perform linear regression taking all the independent variables
+lm_model <- lm(log.Rented.Bike.Count ~ ., data = bikedata)
+
+# Print the model summary
+summary(lm_model)
+```
+
+## Task 3
+```{r, warning=FALSE, message=FALSE}
+
+models <- regsubsets(formula(lm_model),bikedata, nvmax=20)
+summary(models)
+
+res.sum <- summary(models)
+
+calculate_aic <- function(bic, k, n) {
+  aic <- bic + (2 - log(n)) * (k + 1)
+  return(aic)
+}
+
+# Create an empty vector to store AIC values
+res.sum$aic <- numeric(length(res.sum$bic))
+
+# Calculate AIC for each BIC value
+for (i in seq_along(res.sum$bic)) {
+  k <- i + 1  # Increase k with every iteration starting from 2
+  res.sum$aic[i] <- calculate_aic(res.sum$bic[i], k = k, n = nrow(bikedata))
+}
+
+Adj.R2_max <- ifelse(length(res.sum$adjr2) > 0, which.max(res.sum$adjr2), NA)
+BIC_min <- ifelse(length(res.sum$bic) > 0, which.min(res.sum$bic), NA)
+AIC_min <- which.min(res.sum$aic)
+
+best_models <- data.frame(
+  Adj.R2 = Adj.R2_max,
+  AIC = AIC_min,
+  BIC = BIC_min
+)
+
+best_models
+
+# Fitting the best model achieved from the AIC and BIC score
+final_model <- lm(log.Rented.Bike.Count ~ Hour + Temperature + Humidity + 
+                    Wind.speed + Rainfall + Seasons + Holiday, data = bikedata)
+
+# Create a table with parameter estimates, p-values, and confidence intervals
+results_table <- data.frame(
+  Estimate = round(coef(final_model),3),
+  `Pr(>|t|)` = summary(final_model)$coefficients[, 4],
+  `95% CI` = paste(round(confint(final_model)[, 1],3), 
+                   round(confint(final_model)[, 2],3), sep = ", "),
+  Adj_R2 = round(summary(final_model)$adj.r.squared,3),
+  Multiple_R2 = round(summary(final_model)$r.squared, 3)
+)
+
+# Print the results table
+print(results_table)
+```
+
+## Task 4
+```{r message=FALSE, warning=FALSE}
+
+# Create residual plots
+# Linearity and Heteroskedasticity assumption
+plot(final_model, which = 1)
+
+plot(final_model, which = 2)
+
+# Checking multicollinearity using VIF and printing the VIF table
+print(data.frame(VIF = vif(final_model)))
+
+```
