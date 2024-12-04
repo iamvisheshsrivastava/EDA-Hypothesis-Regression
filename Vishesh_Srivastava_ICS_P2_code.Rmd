@@ -1,0 +1,113 @@
+---
+title: "Project II-Comparison of multiple distributions"
+author: "Vishesh Srivastava"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Task 1
+
+```{r, warning=FALSE, message=FALSE}
+
+# Loading the required libraries
+#library(ggplot2)
+library(dplyr)
+#library(gridExtra)
+#library(stringr)
+library(car)
+
+# Load the dataset
+data <- read.csv(file.choose())
+
+# Subset the dataset to include only the "wt" and "smoke" columns
+data <- data[, c("wt", "smoke")]
+
+# Convert 'smoke' variable to a factor
+data$smoke <- factor(data$smoke, 
+                     levels = c(0, 1, 2, 3, 9), 
+                     labels = c("never", "smokes now", 
+                                "until current pregnancy", 
+                                "once did, not now", "unknown"))
+
+# Calculate the group means for 'wt' based on 'smoke' category
+group_means <- data %>%
+  group_by(smoke) %>%
+  summarise(group_mean = mean(wt, na.rm = TRUE))
+
+# Function to replace missing values with group mean
+replace_with_group_mean <- function(wt, smoke) {
+  if (is.na(wt)) {
+    group_mean <- group_means$group_mean[group_means$smoke == smoke]
+    ifelse(is.na(group_mean), mean(data$wt, na.rm = TRUE), group_mean)
+  } else {
+    wt
+  }
+}
+
+# Apply the function to replace missing values in 'wt' column
+data$wt <- mapply(replace_with_group_mean, data$wt, data$smoke)
+
+# Remove rows with 'unknown' in the 'smoke' column
+data <- data[data$smoke != "unknown", ]
+
+# Remove the factor level "unknown" from the smoke column
+data$smoke <- factor(data$smoke, exclude = "unknown")
+
+# Descriptive summary of all the variables
+category_summary <- by(data$wt, data$smoke, 
+                       function(x) c(Count = length(x), 
+                                     Mean = round(mean(x), 2), 
+                                     Variance = round(var(x), 2), 
+                                     `Std. Dev.` = round(sd(x), 2), 
+                                     Min = min(x), 
+                                     Max = max(x)))
+category_summary_table <- do.call(rbind, category_summary)
+print(category_summary_table) 
+
+```
+
+## Task 2
+
+```{r, warning=FALSE, message=FALSE}
+# variances of each sample are assumed equal
+leveneTest(data$wt, data$smoke)
+
+# The residuals are assumed to be normally distributed
+# Fit a statistical model and obtain the residuals
+model <- lm(wt ~ smoke, data = data)
+residuals <- residuals(model)
+
+# Perform Kolmogorov-Smirnov test for to check if residuals are normally distributed:
+ks_result <- ks.test(residuals, "pnorm", mean(residuals), sd(residuals))
+print(ks_result)
+
+
+# Perform one-way ANOVA
+anova_result <- aov(wt ~ smoke, data = data)
+
+# Print the ANOVA table
+summary(anova_result)
+
+```
+
+## Task 3
+
+
+```{r, warning=FALSE, message=FALSE}
+# Perform pairwise t-tests
+pairwise_ttests <- pairwise.t.test(data$wt, data$smoke, p.adjust.method = "none")
+pairwise_ttests
+
+# Perform pairwise t-tests with Bonferroni correction
+bonferroni_results <- pairwise.t.test(data$wt, data$smoke, p.adjust.method = "bonferroni")
+bonferroni_results
+
+# Perform pairwise t-tests with Tukey's HSD correction
+tukey_results <- TukeyHSD(anova_result, conf.level=.95)
+tukey_results
+
+```
