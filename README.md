@@ -1,77 +1,62 @@
-# EDA, Hypothesis Testing, and Regression Projects
+# EDA, Hypothesis Testing & Regression
 
-This repository collects three R-based statistics projects covering exploratory data analysis, hypothesis testing, and regression modeling. Each project folder contains the report source and supporting outputs.
+**[View the project showcase →](https://iamvisheshsrivastava.github.io/EDA-Hypothesis-Regression)**
+
+Three end-to-end statistical analysis projects built in R as part of coursework at TU Dortmund University. Each project covers a different pillar of applied statistics — from exploratory analysis and hypothesis testing to regression modeling and diagnostics.
+
+---
 
 ## Projects
 
-### Project I: Demographic data analysis
+### Project I — Demographic Data Analysis
+Descriptive and visual analysis of global life expectancy and under-age-5 mortality. Explores patterns across world regions and tracks trends over time.
 
-- descriptive analysis of life expectancy and under-age-5 mortality
-- comparisons across regions and over time
+| File | Description |
+|------|-------------|
+| [`Project_I/Vishesh_Srivastava_ICS_P1_code.Rmd`](Project_I/Vishesh_Srivastava_ICS_P1_code.Rmd) | R Markdown source |
+| [`Project_I/Vishesh_Srivastava_ICS_P1_Report.pdf`](Project_I/Vishesh_Srivastava_ICS_P1_Report.pdf) | Final report (PDF) |
 
-### Project II: Smoking and birth weight
+### Project II — Smoking & Birth Weight
+Investigates the effect of maternal smoking on infant birth weight using one-way ANOVA, Kruskal-Wallis tests, and pairwise comparisons with Bonferroni and Tukey corrections.
 
-- hypothesis testing across maternal smoking categories
-- ANOVA, pairwise tests, and multiple-comparison corrections
+| File | Description |
+|------|-------------|
+| [`Project_II/Vishesh_Srivastava_ICS_P2_code.Rmd`](Project_II/Vishesh_Srivastava_ICS_P2_code.Rmd) | R Markdown source |
+| [`Project_II/Vishesh_Srivastava_ICS_P2_Report.pdf`](Project_II/Vishesh_Srivastava_ICS_P2_Report.pdf) | Final report (PDF) |
 
-### Project III: Seoul bike sharing regression
+### Project III — Seoul Bike Sharing Demand
+Builds and evaluates a linear regression model to predict hourly bike rentals. Covers variable selection, multicollinearity (VIF), residual diagnostics, Box-Cox transformation, and influential point analysis.
 
-- linear regression for bike-demand modeling
-- model selection, diagnostics, and multicollinearity checks
+| File | Description |
+|------|-------------|
+| [`Project_III/Vishesh_Srivastava_ICS_P3_code.Rmd`](Project_III/Vishesh_Srivastava_ICS_P3_code.Rmd) | R Markdown source |
+| [`Project_III/Vishesh_Srivastava_ICS_P3_Report.pdf`](Project_III/Vishesh_Srivastava_ICS_P3_Report.pdf) | Final report (PDF) |
 
-## Repository layout
+---
 
-```text
-EDA-Hypothesis-Regression/
-|-- Project_I/
-|-- Project_II/
-|-- Project_III/
-`-- README.md
-```
+## Stack
 
-## Tools
+`R` · `RStudio` · `ggplot2` · `dplyr` · `tidyr` · `car` · `MASS` · `lmtest` · `leaps`
 
-- R
-- RStudio
-- dplyr
-- tidyr
-- ggplot2
-- car
-- MASS
-- lmtest
-- leaps
+---
 
-## Getting started
-
-1. Clone the repository.
-2. Open the relevant `.Rmd` file in RStudio.
-3. Install the required packages.
-4. Knit the report or run the notebook cells interactively.
-
-## Example package install
+## Getting Started
 
 ```r
+# Install all required packages
 install.packages(c(
-  "dplyr",
-  "tidyr",
-  "ggplot2",
-  "gridExtra",
-  "corrplot",
-  "cowplot",
-  "ggpubr",
-  "RColorBrewer",
-  "car",
-  "MASS",
-  "lmtest",
-  "leaps"
+  "dplyr", "tidyr", "ggplot2", "gridExtra",
+  "corrplot", "cowplot", "ggpubr", "RColorBrewer",
+  "car", "MASS", "lmtest", "leaps"
 ))
 ```
 
-## Notes
+1. Clone the repo
+2. Open the relevant `.Rmd` file in RStudio
+3. Knit the report or run cells interactively
 
-- The projects were completed as part of coursework at TU Dortmund University.
-- File and report names are preserved from the original submissions.
+---
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE).
+[MIT](LICENSE)
