@@ -34,6 +34,17 @@ Builds and evaluates a linear regression model to predict hourly bike rentals. C
 
 ---
 
+## Screenshots
+
+Excerpts from the rendered PDF reports, showing actual output from each project's analysis.
+
+| | |
+|---|---|
+| ![EDA distributions](docs/screenshots/project1-eda-distributions.png) **Project I — Distribution analysis**<br>Frequency histograms of life expectancy at birth and under-age-5 mortality, split by sex, with mean/median markers. | ![ANOVA results](docs/screenshots/project2-anova-results.png) **Project II — Hypothesis test results**<br>One-way ANOVA table testing whether mean birth weight differs across maternal smoking categories (F = 26.10, p < 2.31×10⁻¹⁶). |
+| ![Regression coefficients](docs/screenshots/project3-regression-coefficients.png) **Project III — Regression output**<br>Fitted coefficients, p-values, and 95% confidence intervals for the final linear model of log rented bike count. | ![Residual diagnostics](docs/screenshots/project3-residual-diagnostics.png) **Project III — Residual diagnostics**<br>Residuals-vs-fitted and Normal Q-Q plots used to check linearity, heteroskedasticity, and normality assumptions. |
+
+---
+
 ## Stack
 
 `R` · `RStudio` · `ggplot2` · `dplyr` · `tidyr` · `car` · `MASS` · `lmtest` · `leaps`
