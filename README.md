@@ -2,6 +2,8 @@
 
 **[View the project showcase →](https://iamvisheshsrivastava.github.io/EDA-Hypothesis-Regression)**
 
+> **Known issue:** the `.Rmd` files currently committed under `Project_I/II/III` are placeholders — they contain scraped GitHub HTML, not R code ([#4](https://github.com/iamvisheshsrivastava/EDA-Hypothesis-Regression/issues/4)), and are tracked as incorrect uploads in [#1](https://github.com/iamvisheshsrivastava/EDA-Hypothesis-Regression/issues/1). The PDF reports, screenshots, and descriptions below reflect the real analyses; the `.Rmd` sources need to be re-uploaded from the original project files before they can be knit.
+
 Three end-to-end statistical analysis projects built in R as part of coursework at TU Dortmund University. Each project covers a different pillar of applied statistics — from exploratory analysis and hypothesis testing to regression modeling and diagnostics.
 
 ---
@@ -54,17 +56,28 @@ Excerpts from the rendered PDF reports, showing actual output from each project'
 ## Getting Started
 
 ```r
-# Install all required packages
-install.packages(c(
-  "dplyr", "tidyr", "ggplot2", "gridExtra",
-  "corrplot", "cowplot", "ggpubr", "RColorBrewer",
-  "car", "MASS", "lmtest", "leaps"
-))
+# Install all required packages (versions pinned in renv.lock)
+renv::restore()
 ```
 
 1. Clone the repo
-2. Open the relevant `.Rmd` file in RStudio
-3. Knit the report or run cells interactively
+2. Run `renv::restore()` in the repo root to install the exact package versions pinned in [`renv.lock`](renv.lock) (falls back to `install.packages(c("dplyr", "tidyr", "ggplot2", "gridExtra", "corrplot", "cowplot", "ggpubr", "RColorBrewer", "car", "MASS", "lmtest", "leaps"))` if you'd rather not use renv)
+3. Open the relevant `.Rmd` file in RStudio
+4. Knit the report or run cells interactively
+
+A [GitHub Actions workflow](.github/workflows/render-reports.yml) automatically re-knits each `.Rmd` on every push/PR to catch reports that no longer build. It will start passing once the `.Rmd` sources are restored (see the known issue above).
+
+### Data
+
+None of the raw datasets used by the three analyses are committed to this repo ([#5](https://github.com/iamvisheshsrivastava/EDA-Hypothesis-Regression/issues/5)), so the `.Rmd` files can't be re-knit end-to-end yet even once their source code is fixed. To make this reproducible, each project expects its input data as a local file, loaded near the top of the `.Rmd`:
+
+| Project | Expected file | Format |
+|---|---|---|
+| Project I | `Project_I/data/life_expectancy.csv` (name as referenced by the original `read.csv()`/`read_csv()` call) | CSV with columns for country, region, year, sex, life expectancy at birth, and under-age-5 mortality |
+| Project II | `Project_II/data/birth_weight.csv` | CSV with columns for maternal smoking category and infant birth weight |
+| Project III | `Project_III/data/seoul_bike_sharing.csv` | The [Seoul Bike Sharing Demand](https://archive.ics.uci.edu/dataset/560/seoul+bike+sharing+demand) UCI dataset (hourly rental count plus weather/calendar predictors) |
+
+Dropping the matching file into each project's `data/` folder (and pointing the `.Rmd`'s data-loading chunk at it) is enough to make the knit reproducible once the real `.Rmd` sources are back in place.
 
 ---
 
