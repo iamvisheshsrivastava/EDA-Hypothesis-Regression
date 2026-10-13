@@ -5,9 +5,9 @@ name: Render Reports
 #
 # NOTE: this workflow will not pass until the .Rmd sources in Project_I/II/III
 # are real R Markdown (see issue #4) and renv.lock has been generated against
-# them with `renv::snapshot()` (see renv.lock's header comment). It is wired up
-# now so it activates automatically once those are fixed — no workflow changes
-# needed at that point.
+# them with `renv::snapshot()` (see the "Getting Started" section of README.md
+# for how package versions are pinned). It is wired up now so it activates
+# automatically once those are fixed — no workflow changes needed at that point.
 
 on:
   push:
